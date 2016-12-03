@@ -5,9 +5,10 @@
 #include <Adafruit_GPS.h>
 #include <time.h>
 #include <stdlib.h>
+
 int vehId = 2;
 #define GPSECHO  false
-#define RELEASE true  
+#define RELEASE false
 
 #if(RELEASE)
 	SoftwareSerial mySerial(3, 2); /*to read gps*/
@@ -90,7 +91,7 @@ void setupGPS() {
 		GPS.lat = 'N';
 		GPS.longitude = 8323.508;
 		GPS.lon = 'W';
-		GPS.angle = 0;
+		GPS.angle = 90;
 		GPS.fix = true;
 		GPS.satellites = 10;
 
@@ -130,9 +131,9 @@ void updateBSM() {
 	double latitude  = (GPS.lat == 'N' ? GPS.latitude : -1 * GPS.latitude) / 100;
 	double longitude = (GPS.lon == 'E' ? GPS.longitude : -1 * GPS.longitude) / 100;
 	
-	/*Serial.print("CALC Location: ");
+	Serial.print("CALC Location: ");
 	Serial.print(latitude, 4); Serial.print(GPS.lat); Serial.print(", "); Serial.print(longitude, 4); Serial.println(GPS.lon);
-	*/
+	
 
 	bsm.cpos.latitude = dround(latitude, 5); //new
 	bsm.cpos.longitude = dround(longitude, 5);
@@ -213,34 +214,6 @@ void broadcast(){
 	Serial.println("Sending BSM");
 	printMSG(bsm);
 	*/
-	/*
-    unsigned long started_waiting_at = micros();               // Set up a timeout period, get the current microseconds
-    boolean timeout = false;                                   // Set up a variable to indicate if a response was received or not
-    
-    while ( ! radio.available() ){                             // While nothing is received
-      if (micros() - started_waiting_at > 200000 ){            // If waited longer than 200ms, indicate timeout and exit while loop
-          timeout = true;
-          break;
-      }      
-    }
-        
-    if ( timeout ){                                             // Describe the results
-        Serial.println(F("Failed, response timed out."));
-    }else{
-        unsigned long got_time;                                 // Grab the response, compare, and send to debugging spew
-        radio.read( &got_time, sizeof(unsigned long) );
-        unsigned long end_time = micros();
-        
-        // Spew it
-        Serial.print(F("Sent "));
-        Serial.print(start_time);
-        Serial.print(F(", Got response "));
-        Serial.print(got_time);
-        Serial.print(F(", Round-trip delay "));
-        Serial.print(end_time-start_time);
-        Serial.println(F(" microseconds"));
-    }
-	*/
 }
 
 
@@ -252,7 +225,6 @@ void checkRadio(){
     }
     
     if( radio.available()){
-      //Serial.print(F("Now receiving : "));
       bsmf bsmr;
                                                                     // Variable for the received timestamp
       while (radio.available()) {                                   // While there is data ready
@@ -261,20 +233,10 @@ void checkRadio(){
 
 	  digitalWrite(RECVLED, HIGH);
 	  lastRecieved = millis();
-	  /*
 	  Serial.println("receiving BSM");
-	  printBSM(bsmr);
-	  */
+	  //printBSM(bsmr);
 	  processBSMR(bsm, bsmr);
 
-	  /*
-      long got_time = micros();
-      radio.stopListening();                                        // First, stop listening so we can talk   
-      radio.write( &got_time, sizeof(unsigned long) );              // Send the final one back.            
-	  radio.startListening();                                       // Now, resume listening so we catch the next packets.     
-      Serial.print(F("Sent response "));
-      Serial.println(got_time);
-	  */
 	}
 	/*
 	else {
@@ -325,11 +287,12 @@ void printGpsData(){
       Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
       Serial.print(", "); 
       Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
-      Serial.print("Location (in degrees): ");
+#if(RELEASE)
+	  Serial.print("Location (in degrees): ");
       Serial.print(GPS.latitudeDegrees, 4);
       Serial.print(", "); 
       Serial.println(GPS.longitudeDegrees, 4);
-      
+#endif      
       Serial.print("Speed (knots): "); Serial.println(GPS.speed);
       Serial.print("Angle: "); Serial.println(GPS.angle);
       //Serial.print("Altitude: "); Serial.println(GPS.altitude);

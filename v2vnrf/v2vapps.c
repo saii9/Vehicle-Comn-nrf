@@ -1,4 +1,18 @@
-#include "v2vnrf.h"
+ #include "v2vnrf.h"
+#include <string.h>
+
+double calcDistance(geodot a, geodot b) {
+
+	double t1 = a.latitude * CNV_DEGTR;
+	double t2 = b.longitude * CNV_DEGTR;
+	double dt = (a.latitude - b.latitude) * CNV_DEGTR;
+	double dl = (a.longitude - b.longitude) * CNV_DEGTR;
+
+	double ac = sin(dt / 2) * sin(dt / 2) +cos(t1) * cos(t2) * sin(dl / 2) * sin(dl / 2);
+	double c = 2 * atan2(sqrt(ac), sqrt(1 - ac));
+
+	return RADIUS * c;
+}
 
 geodot calculatePolyOffset(double lat1, double lon1, double d, double brng) {
 	geodot gdot;
@@ -29,26 +43,30 @@ cautionPoly getTimePolygon(geodot gd, double speed, double h /*Heading*/) {
 	cautionPoly cpoly;
 	double s = speed * CNV_KNMPS;
 
-	//if (NUM_SAFE_POLY_SIDES == 1) {
-	//	vpoly.ver[0] = calculatePolyOffset(latitude, longitude, TTR * s, h);								//far
-	//}else
+	
+#if(NUM_SAFE_POLY_SIDES == 4)
+	//0->nearleft, 1->farleft, 2->farright, 3->nearright
+	cpoly.ver[3] = calculatePolyOffset(latitude, longitude, HLW, fmod((h + 90), 360));					//near right
+	cpoly.ver[0] = calculatePolyOffset(latitude, longitude, HLW, fmod(((h - 90) + 360), 360));			//near left
+	geodot fp = calculatePolyOffset(latitude, longitude, TTS * s, h);									//far
+	cpoly.ver[2] = calculatePolyOffset(fp.latitude, fp.longitude, HLW, fmod(h + 90, 360));				//far right
+	cpoly.ver[1] = calculatePolyOffset(fp.latitude, fp.longitude, HLW, fmod(((h - 90) + 360), 360));	//far left
+#elif(NUM_SAFE_POLY_SIDES == 1)
+	cpoly.ver[0] = gd;																			// current position
+	cpoly.ver[1] = calculatePolyOffset(latitude, longitude, TTS * s, h);								//predicted position
+#endif // 
 
-	if (NUM_SAFE_POLY_SIDES == 4) {
-		//0->nearleft, 1->farleft, 2->farright, 3->nearright
-		cpoly.ver[3] = calculatePolyOffset(latitude, longitude, HLW, fmod((h + 90), 360));					//near right
-		cpoly.ver[0] = calculatePolyOffset(latitude, longitude, HLW, fmod(((h - 90) + 360), 360));			//near left
-		geodot fp = calculatePolyOffset(latitude, longitude, TTR * s, h);								//far
-		cpoly.ver[2] = calculatePolyOffset(fp.latitude, fp.longitude, HLW, fmod(h + 90, 360));				//far right
-		cpoly.ver[1] = calculatePolyOffset(fp.latitude, fp.longitude, HLW, fmod(((h - 90) + 360), 360));	//far left
-	}
 	return cpoly;
 
 }
 
 
 int v2pAppICW(bsmf bsm ,bsmf bsmr) {
-	cautionPoly rpoly = getTimePolygon(bsmr.cpos, bsmr.speed, bsmr.heading);
-	cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
+
+cautionPoly rpoly = getTimePolygon(bsmr.cpos, bsmr.speed, bsmr.heading);
+cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
+
+#if(NUM_SAFE_POLY_SIDES == 4)
 	// check intersection of vploy with rpoly
 	for (int i = 0; i < NUM_SAFE_POLY_SIDES; i++) {
 		for (int j = 0; j < NUM_SAFE_POLY_SIDES; j++) {
@@ -58,6 +76,18 @@ int v2pAppICW(bsmf bsm ,bsmf bsmr) {
 			}
 		}
 	}
+#elif(NUM_SAFE_POLY_SIDES == 1)
+	geodot *p = malloc(sizeof(geodot));
+	if (get_line_intersection(vpoly.ver[0], vpoly.ver[1], rpoly.ver[0], rpoly.ver[1], p)) {
+		double t = calcDistance(vpoly.ver[0], *p) / bsm.speed;
+		
+		if(t < TTS) notify(CAUTION, "car approching");
+		else if (t < TTW) notify(STOP, "car approching");
+		else notify(WATCH, "car somewhere");
+		return false;
+	}
+	free(p);
+#endif // 
 }
 
 void processBSMR(bsmf bsm, bsmf bsmr) {

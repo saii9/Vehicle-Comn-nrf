@@ -3,8 +3,12 @@
 /* ------------Constants-------------------- START */
 #define RADIUS  6371000
 #define HLW 1.5														// Half line width 1.5m default
-#define TTR 8														// Time to react in sec
-#define NUM_SAFE_POLY_SIDES 4
+
+#define TOF 8														// Time of scope in sec
+#define TTW 8														// Time to warn in sec
+#define TTS 4														// Time to stop in sec
+
+#define NUM_SAFE_POLY_SIDES 1
 #define CNV_KNMPS 0.514444445										// conversion from knots to meters per sec
 #define CNV_RTDEG 180/3.14159265359									// conversion from degrees to radians
 #define CNV_DEGTR 3.14159265359/180									// conversion from radians to degrees

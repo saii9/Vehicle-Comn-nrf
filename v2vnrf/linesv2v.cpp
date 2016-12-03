@@ -76,3 +76,43 @@ bool willIntersect(geodot v1a, geodot v1b, geodot v2a, geodot v2b) {
 
 	return doIntersect(p1, q1, p2, q2);
 }
+
+
+// Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
+// intersect the intersection point may be stored in the floats i_x and i_y.
+int get_line_intersection(geodot v1a, geodot v1b, geodot v2a, geodot v2b, geodot *p)
+{
+	double p0_x = v1a.latitude;
+	double  p0_y = v1a.longitude;
+	double  p1_x = v1b.latitude;
+	double  p1_y = v1a.longitude;
+	double  p2_x = v2a.latitude;
+	double  p2_y = v1a.longitude;
+	double  p3_x = v2b.latitude;
+	double  p3_y = v1a.longitude;
+	double  *i_x = &p->latitude;
+	double  *i_y = &p->longitude;
+
+
+	double s1_x, s1_y, s2_x, s2_y;
+	s1_x = p1_x - p0_x;     
+	s1_y = p1_y - p0_y;
+	s2_x = p3_x - p2_x;     
+	s2_y = p3_y - p2_y;
+
+	double s, t;
+	s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+	t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+	if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+	{
+		// Collision detected
+		if (i_x != NULL)
+			*i_x = p0_x + (t * s1_x);
+		if (i_y != NULL)
+			*i_y = p0_y + (t * s1_y);
+		return 0;
+	}
+
+	return 1; // No collision
+}
