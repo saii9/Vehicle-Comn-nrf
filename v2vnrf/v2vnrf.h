@@ -84,6 +84,8 @@ extern "C" {
 
  extern bool willIntersect(geodot v1a, geodot v1b, geodot v2a, geodot v2b);
  extern bool doIntersect(Point p1, Point q1, Point p2, Point q2);
+ extern bool get_line_intersection(geodot v1a, geodot v1b, geodot v2a, geodot v2b, geodot *p);
+
 #ifdef __cplusplus
 }
 #endif
