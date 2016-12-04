@@ -82,17 +82,16 @@ bool willIntersect(geodot v1a, geodot v1b, geodot v2a, geodot v2b) {
 // intersect the intersection point may be stored in the floats i_x and i_y.
 bool get_line_intersection(geodot v1a, geodot v1b, geodot v2a, geodot v2b, geodot *p)
 {
-	double p0_x = v1a.latitude;
+	double  p0_x = v1a.latitude;
 	double  p0_y = v1a.longitude;
 	double  p1_x = v1b.latitude;
-	double  p1_y = v1a.longitude;
+	double  p1_y = v1b.longitude;
 	double  p2_x = v2a.latitude;
-	double  p2_y = v1a.longitude;
+	double  p2_y = v2a.longitude;
 	double  p3_x = v2b.latitude;
-	double  p3_y = v1a.longitude;
-	double  *i_x = &p->latitude;
-	double  *i_y = &p->longitude;
-
+	double  p3_y = v2b.longitude;
+	double  i_x;
+	double  i_y;
 
 	double s1_x, s1_y, s2_x, s2_y;
 	s1_x = p1_x - p0_x;     
@@ -103,14 +102,15 @@ bool get_line_intersection(geodot v1a, geodot v1b, geodot v2a, geodot v2b, geodo
 	double s, t;
 	s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
 	t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
-
+	sprintdouble("s", s);
+	sprintdouble("t", t);
 	if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
 	{
 		// Collision detected
-		*i_x = p0_x + (t * s1_x);
-		*i_y = p0_y + (t * s1_y);
-		return false;
+		p->latitude = p0_x + (t * s1_x);
+		p->longitude = p0_y + (t * s1_y);
+		return true;
 	}
-
-	return true; // No collision
+	sprintdouble("No collision", 0);
+	return false; // No collision
 }

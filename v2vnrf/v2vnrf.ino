@@ -6,9 +6,9 @@
 #include <time.h>
 #include <stdlib.h>
 
-int vehId = 2;
+int vehId = 1;
 #define GPSECHO  false
-#define RELEASE false
+#define RELEASE true
 
 #if(RELEASE)
 	SoftwareSerial mySerial(3, 2); /*to read gps*/
@@ -317,4 +317,16 @@ void printBSM(bsmf vbsm) {
 	//	Serial.print(i); Serial.print("lat    : "); Serial.println(vbsm.cpoly.ver[i].latitude, 10);
 	//	Serial.print(i); Serial.print("long   : "); Serial.println(vbsm.cpoly.ver[i].longitude, 10);
 	//}
+}
+
+void sprintint(char* msg, int i) {
+	Serial.print(msg); Serial.print(" : "); Serial.println(i);
+}
+
+void sprintdouble(char* msg, double i) {
+	Serial.print(msg); Serial.print(" : "); Serial.println(i,10);
+}
+
+void sprintstring(char* msg, char* i) {
+	Serial.print(msg); Serial.print(" : "); Serial.println(i);
 }

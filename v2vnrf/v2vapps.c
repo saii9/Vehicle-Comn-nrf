@@ -1,5 +1,5 @@
- #include "v2vnrf.h"
 #include <string.h>
+#include "v2vnrf.h"
 
 double calcDistance(geodot a, geodot b) {
 
@@ -8,7 +8,7 @@ double calcDistance(geodot a, geodot b) {
 	double dt = (a.latitude - b.latitude) * CNV_DEGTR;
 	double dl = (a.longitude - b.longitude) * CNV_DEGTR;
 
-	double ac = sin(dt / 2) * sin(dt / 2) +cos(t1) * cos(t2) * sin(dl / 2) * sin(dl / 2);
+	double ac = sin(dt / 2) * sin(dt / 2) + cos(t1) * cos(t2) * sin(dl / 2) * sin(dl / 2);
 	double c = 2 * atan2(sqrt(ac), sqrt(1 - ac));
 
 	return RADIUS * c;
@@ -43,7 +43,7 @@ cautionPoly getTimePolygon(geodot gd, double speed, double h /*Heading*/) {
 	cautionPoly cpoly;
 	double s = speed * CNV_KNMPS;
 
-	
+
 #if(NUM_SAFE_POLY_SIDES == 4)
 	//0->nearleft, 1->farleft, 2->farright, 3->nearright
 	cpoly.ver[3] = calculatePolyOffset(latitude, longitude, HLW, fmod((h + 90), 360));					//near right
@@ -52,19 +52,18 @@ cautionPoly getTimePolygon(geodot gd, double speed, double h /*Heading*/) {
 	cpoly.ver[2] = calculatePolyOffset(fp.latitude, fp.longitude, HLW, fmod(h + 90, 360));				//far right
 	cpoly.ver[1] = calculatePolyOffset(fp.latitude, fp.longitude, HLW, fmod(((h - 90) + 360), 360));	//far left
 #elif(NUM_SAFE_POLY_SIDES == 1)
-	cpoly.ver[0] = gd;																			// current position
-	cpoly.ver[1] = calculatePolyOffset(latitude, longitude, TTS * s, h);								//predicted position
+	cpoly.ver[0] = gd;																					// current position
+	cpoly.ver[1] = calculatePolyOffset(latitude, longitude, TTS * s, h);								// predicted position
 #endif // 
-
 	return cpoly;
-
 }
 
 
-int v2pAppICW(bsmf bsm ,bsmf bsmr) {
+int v2pAppICW(bsmf bsm, bsmf bsmr) {
 
-cautionPoly rpoly = getTimePolygon(bsmr.cpos, bsmr.speed, bsmr.heading);
-cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
+	cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
+	cautionPoly rpoly = getTimePolygon(bsmr.cpos, bsmr.speed, bsmr.heading);
+
 
 #if(NUM_SAFE_POLY_SIDES == 4)
 	// check intersection of vploy with rpoly
@@ -79,10 +78,19 @@ cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
 #elif(NUM_SAFE_POLY_SIDES == 1)
 	geodot *p = malloc(sizeof(geodot));
 	if (get_line_intersection(vpoly.ver[0], vpoly.ver[1], rpoly.ver[0], rpoly.ver[1], p)) {
+		
 		double t = calcDistance(vpoly.ver[0], *p) / bsm.speed;
 		
-		if(t < TTS) notify(CAUTION, "car approching");
-		else if (t < TTW) notify(STOP, "car approching");
+		sprintdouble("distance", calcDistance(vpoly.ver[0], *p));
+		sprintdouble("speed", bsm.speed);
+		sprintdouble("time",t);
+
+		sprintdouble("intersection pt lat", p->latitude);
+		sprintdouble("time", t);
+
+		free(p);
+		if (t < TTS) notify(STOP, "bake, car in proximity");
+		else if (t < TTW) notify(CAUTION, "car approching");
 		else notify(WATCH, "car somewhere");
 		return false;
 	}

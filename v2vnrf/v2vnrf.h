@@ -1,5 +1,6 @@
 #include <Math.h>
 #include <stdbool.h>
+
 /* ------------Constants-------------------- START */
 #define RADIUS  6371000
 #define HLW 1.5														// Half line width 1.5m default
@@ -31,7 +32,7 @@
 
 /* ------------ Structures-------------------- START */
 
-typedef struct{
+typedef struct {
 	double x;
 	double y;
 }Point;
@@ -42,7 +43,7 @@ typedef struct {
 }geodot;
 
 typedef struct {
-	geodot ver[NUM_SAFE_POLY_SIDES];								// 0 -> nearleft, 1-> farleft, 2->farright, 3->nearright																	//time span
+	geodot ver[NUM_SAFE_POLY_SIDES == 1 ? 2: NUM_SAFE_POLY_SIDES];								// 0 -> nearleft, 1-> farleft, 2->farright, 3->nearright																	//time span
 }cautionPoly;
 
 typedef struct {
@@ -77,15 +78,17 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
- extern void processBSMR(bsmf bsm, bsmf bsmr);
-//extern int v2pAppICW(bsmf bsm, bsmf bsmr);
- extern double dround(double value, int numdecimal);
- extern void notify(int severity, char* msg);
+	extern void processBSMR(bsmf bsm, bsmf bsmr);
+	//extern int v2pAppICW(bsmf bsm, bsmf bsmr);
+	extern double dround(double value, int numdecimal);
+	extern void notify(int severity, char* msg);
 
- extern bool willIntersect(geodot v1a, geodot v1b, geodot v2a, geodot v2b);
- extern bool doIntersect(Point p1, Point q1, Point p2, Point q2);
- extern bool get_line_intersection(geodot v1a, geodot v1b, geodot v2a, geodot v2b, geodot *p);
-
+	extern bool willIntersect(geodot v1a, geodot v1b, geodot v2a, geodot v2b);
+	extern bool doIntersect(Point p1, Point q1, Point p2, Point q2);
+	extern bool get_line_intersection(geodot v1a, geodot v1b, geodot v2a, geodot v2b, geodot *p);
+	extern void sprintint(char* msg, int i);
+	extern void sprintdouble(char* msg, double i);
+	extern void sprintstring(char* msg, char* i);
 #ifdef __cplusplus
 }
 #endif

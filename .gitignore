@@ -1,0 +1,5 @@
+v2vnrf/Release/
+v2vnrf/__vm/Compile.vmps.xml
+v2vnrf/__vm/Configuration.Debug.vmps.xml
+v2vnrf/__vm/Configuration.Release.vmps.xml
+v2vnrf/__vm/Upload.vmps.xml
