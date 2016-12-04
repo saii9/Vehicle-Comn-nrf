@@ -28,8 +28,8 @@ geodot calculatePolyOffset(double lat1, double lon1, double d, double brng) {
 	double lat2 = asin(sin(lat1) * cos(d / RADIUS) + cos(lat1) * sin(d / RADIUS) * cos(brng));
 	double lon2 = lon1 + atan2(sin(brng) * sin(d / RADIUS) * cos(lat1), cos(d / RADIUS) - sin(lat1) * sin(lat2));
 
-	gdot.longitude = dround(lon2 * CNV_RTDEG, 5);
-	gdot.latitude = dround(lat2 * CNV_RTDEG, 5);
+	gdot.longitude = lon2 * CNV_RTDEG;
+	gdot.latitude = lat2 * CNV_RTDEG;
 
 	//Serial.print("lat2----: "); Serial.println(gdot.latitude, 10);
 	//Serial.print("long2---: "); Serial.println(gdot.longitude, 10);
@@ -63,7 +63,19 @@ int v2pAppICW(bsmf bsm, bsmf bsmr) {
 
 	cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
 	cautionPoly rpoly = getTimePolygon(bsmr.cpos, bsmr.speed, bsmr.heading);
-
+	
+	sprintgps("this now", vpoly.ver[0]); sprintgps("this ltr", vpoly.ver[1]);
+	
+	sprintdouble("othr h  ", bsmr.heading);
+	sprintgps("othr now", rpoly.ver[0]); sprintgps("othr ltr", rpoly.ver[1]);
+		/*
+	sprintdouble(" cpos 0 lat : ", vpoly.ver[0].latitude); sprintdouble(" cpos 0 lon : ", vpoly.ver[0].longitude);
+	sprintdouble(" cpos 1 lat : ", vpoly.ver[1].latitude); sprintdouble(" cpos 1 lon : ", vpoly.ver[1].longitude);
+	sprintdouble(" rpos 0 lat : ", rpoly.ver[0].latitude); sprintdouble(" rpos 0 lon : ", rpoly.ver[0].longitude);
+	sprintdouble(" rpos 1 lat : ", rpoly.ver[1].latitude); sprintdouble(" rpos 1 lon : ", rpoly.ver[1].longitude);
+	*/
+	sprintdouble(" this len   : ", calcDistance(vpoly.ver[0], vpoly.ver[1]));
+	sprintdouble(" recv len   : ", calcDistance(rpoly.ver[0], rpoly.ver[1]));
 
 #if(NUM_SAFE_POLY_SIDES == 4)
 	// check intersection of vploy with rpoly

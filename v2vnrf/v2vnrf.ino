@@ -7,8 +7,8 @@
 #include <stdlib.h>
 
 int vehId = 1;
-#define GPSECHO  false
-#define RELEASE true
+#define GPSECHO false
+#define RELEASE false
 
 #if(RELEASE)
 	SoftwareSerial mySerial(3, 2); /*to read gps*/
@@ -75,7 +75,23 @@ void setupGPS() {
 	mySerial.println(PMTK_Q_RELEASE);             // Ask for firmware version
     /*Gps setup End*/
 #else
-	if (vehId == 1) { //infront home
+	if (vehId == 1) { 
+		//4228.0859N, 8323.8056W office N
+		
+		GPS.speed = 38.8769;
+		//GPS.latitude = 4228.0859;
+		//GPS.longitude = 8323.8056;
+		//42.468159, -83.396793
+		GPS.latitude = 4246.8159;
+		GPS.longitude = 8339.6793;
+		GPS.lat = 'N';
+
+		GPS.lon = 'W';
+		GPS.angle = 260;
+		GPS.fix = true;
+		GPS.satellites = 10;
+		/*
+		//infront home
 		GPS.speed = 38.8769;
 		GPS.latitude = 4228.077;
 		GPS.lat = 'N';
@@ -84,6 +100,7 @@ void setupGPS() {
 		GPS.angle = 0;
 		GPS.fix = true;
 		GPS.satellites = 10;
+		*/
 	}
 	else if (vehId == 2) {
 		GPS.speed = 38.8769;
@@ -130,10 +147,6 @@ void notify(int severity, char* msg) {
 void updateBSM() {
 	double latitude  = (GPS.lat == 'N' ? GPS.latitude : -1 * GPS.latitude) / 100;
 	double longitude = (GPS.lon == 'E' ? GPS.longitude : -1 * GPS.longitude) / 100;
-	
-	Serial.print("CALC Location: ");
-	Serial.print(latitude, 4); Serial.print(GPS.lat); Serial.print(", "); Serial.print(longitude, 4); Serial.println(GPS.lon);
-	
 
 	bsm.cpos.latitude = dround(latitude, 5); //new
 	bsm.cpos.longitude = dround(longitude, 5);
@@ -321,6 +334,20 @@ void printBSM(bsmf vbsm) {
 
 void sprintint(char* msg, int i) {
 	Serial.print(msg); Serial.print(" : "); Serial.println(i);
+}
+
+void sprintgps(char* msg, geodot g) {
+	double lat = g.latitude;
+	double lon = g.longitude;
+
+	Serial.print(msg); Serial.print(" : "); 
+	Serial.print(lat * 100, 6);  Serial.print(" , "); Serial.println(lon * 100, 6);
+
+	/*
+	Serial.print((int)lat/1, 4); Serial.print("  "); Serial.print((lat - floor(lat)) * 100, 4);
+	Serial.print(" , ");
+	Serial.print((int)lon/1, 4); Serial.print("  "); Serial.println((lon - floor(lon)) * 100, 4);
+	*/
 }
 
 void sprintdouble(char* msg, double i) {

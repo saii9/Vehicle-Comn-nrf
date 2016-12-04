@@ -89,6 +89,7 @@ extern "C" {
 	extern void sprintint(char* msg, int i);
 	extern void sprintdouble(char* msg, double i);
 	extern void sprintstring(char* msg, char* i);
+	extern void sprintgps(char* msg, geodot g);
 #ifdef __cplusplus
 }
 #endif
