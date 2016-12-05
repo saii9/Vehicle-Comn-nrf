@@ -8,15 +8,13 @@ RADIUS  = 6371000
 
 def calcDistance(alat,alon, blat, blon):
 
-    t1 = alat * CNV_DEGTR
-    t2 = blon * CNV_DEGTR
-    dt = (alat - blat) * CNV_DEGTR
-    dl = (alon - blon) * CNV_DEGTR
-
-    ac = math.sin(dt / 2) * math.sin(dt / 2) + math.cos(t1) * math.cos(t2) * math.sin(dl / 2) * math.sin(dl / 2)
-    c = 2 * math.atan2(math.sqrt(ac), math.sqrt(1 - ac))
-
-    return RADIUS * c
+    phi1 = alat;
+    phi2 = blat;
+    dPhi = (blat - alat);
+    dLambda = (blon - alon);
+    a = math.sin(dPhi/2) * math.sin(dPhi/2) + math.cos(phi1) * math.cos(phi2) * math.sin(dLambda/2) * math.sin(dLambda/2);
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a));
+    return RADIUS * c;    
 
 
 def calculatePolyOffset(lat1, lon1, d, brng) :
@@ -31,9 +29,9 @@ def calculatePolyOffset(lat1, lon1, d, brng) :
 	print lon2 * CNV_RTDEG
 
 speed = 38.8769
-latitude = 42.280859
+latitude = 42.468158
 lat = 'N'
-longitude = 83.238056
+longitude =  -83.396789
 lon = 'W'
 angle = 260
 fix = True
@@ -42,13 +40,8 @@ satellites = 10
 print ("othr now : " +str(latitude * 100)+" , "+str(longitude*100))
 
 
-# calculatePolyOffset(latitude, longitude,speed, angle)
-print calcDistance(42.468164,-83.396571, 42.468165, -83.397091)
+calculatePolyOffset(latitude, longitude, 234.5866699218, 0)
+print calcDistance(42.468158 , -83.396789, 42.4677963256, -83.3996047973)
+#42.468158 , -83.396789, 42.467899 , -83.396461
 
 
-# othr now : 4228.0859 , -8323.8056
-# othr ltr : 4228.0590 , -8323.7734
-
-
-# othr now : 4228.0859 , 8323.8056
-#            4228.0603, 8323.83788724

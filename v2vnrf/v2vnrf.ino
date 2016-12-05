@@ -8,7 +8,7 @@
 
 int vehId = 1;
 #define GPSECHO false
-#define RELEASE false
+#define RELEASE true
 
 #if(RELEASE)
 	SoftwareSerial mySerial(3, 2); /*to read gps*/
@@ -35,13 +35,6 @@ void printBSM(bsmf vbsm);
 
 
 void setupOther(){
-	/*
-	Serial.print("sizeof(bsmf)"); Serial.println(sizeof(bsmf));
-	Serial.print("sizeof(geodot)"); Serial.println(sizeof(geodot));
-	Serial.print("sizeof(cpoly)"); Serial.println(sizeof(cautionPoly));
-	Serial.print("sizeof(float)"); Serial.println(sizeof(float));
-	Serial.print("sizeof(int)"); Serial.println(sizeof(int));
-	*/
 	pinMode(RECVLED, OUTPUT);
 	pinMode(STOP, OUTPUT);
 	pinMode(WATCH, OUTPUT);
@@ -51,13 +44,12 @@ void setupOther(){
 
 void setupRadio() {
 
-	/*Radio setup Start*/
 	radio.begin();
 	//radio.setPALevel(RF24_PA_LOW);          // Set the PA Level low to prevent power supply related issue. RF24_PA_MAX is default.
 	radio.openWritingPipe(addresses);       // Open a writing and reading pipe on each radio, with opposite addresses
 	radio.openReadingPipe(1, addresses);     // Start the radio listening for data
 	radio.startListening();
-	/*Radio setup End*/
+
 
 }
 
@@ -65,54 +57,35 @@ void setupRadio() {
 void setupGPS() {
 
 #if(RELEASE)
-	/*Gps setup Start*/
+	// to setup the ada fruit GPS environment
 	GPS.begin(9600);
 	GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-	GPS.sendCommand(PMTK_SET_NMEA_UPDATE_5HZ);   // 10 Hz update rate
+	GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 10 Hz update rate
 	GPS.sendCommand(PGCMD_ANTENNA);
 	useInterrupt(true);
 	delay(1000);
 	mySerial.println(PMTK_Q_RELEASE);             // Ask for firmware version
-    /*Gps setup End*/
-#else
-	if (vehId == 1) { 
-		//4228.0859N, 8323.8056W office N
-		
-		GPS.speed = 38.8769;
-		//GPS.latitude = 4228.0859;
-		//GPS.longitude = 8323.8056;
-		//42.468159, -83.396793
-		GPS.latitude = 4246.8159;
-		GPS.longitude = 8339.6793;
-		GPS.lat = 'N';
 
-		GPS.lon = 'W';
-		GPS.angle = 260;
+#else
+	// test setup for off road testing
+	if (vehId == 1) {
+
+		GPS.speed = 16;
+		GPS.latitudeDegrees = 42.468159;
+		GPS.longitudeDegrees = -83.396793;
+		GPS.angle = 270;
 		GPS.fix = true;
 		GPS.satellites = 10;
-		/*
-		//infront home
-		GPS.speed = 38.8769;
-		GPS.latitude = 4228.077;
-		GPS.lat = 'N';
-		GPS.longitude = 8323.482;
-		GPS.lon = 'W';
+	
+	}else if (vehId == 2) {
+	
+		GPS.speed = 8;
+		GPS.latitudeDegrees = 42.467890;
+		GPS.longitudeDegrees = -83.397131;
 		GPS.angle = 0;
 		GPS.fix = true;
 		GPS.satellites = 10;
-		*/
-	}
-	else if (vehId == 2) {
-		GPS.speed = 38.8769;
-		GPS.latitude = 4228.091;
-		GPS.lat = 'N';
-		GPS.longitude = 8323.508;
-		GPS.lon = 'W';
-		GPS.angle = 90;
-		GPS.fix = true;
-		GPS.satellites = 10;
-
-		//GPS = { 38.8769, 4228.091, 'N', -8323.508, 'W', 90, true, 10 }; //vehicle 2  home left // com6
+	
 	}
 #endif
 }
@@ -145,13 +118,11 @@ void notify(int severity, char* msg) {
 
 
 void updateBSM() {
-	double latitude  = (GPS.lat == 'N' ? GPS.latitude : -1 * GPS.latitude) / 100;
-	double longitude = (GPS.lon == 'E' ? GPS.longitude : -1 * GPS.longitude) / 100;
-
-	bsm.cpos.latitude = dround(latitude, 5); //new
-	bsm.cpos.longitude = dround(longitude, 5);
-	bsm.speed = GPS.speed * CNV_KNMPS > 1 ? dround(GPS.speed * CNV_KNMPS, 5) : 0;
-	bsm.heading = dround(GPS.angle, 5);
+	
+	bsm.cpos.latitude = GPS.latitudeDegrees; //new
+	bsm.cpos.longitude = GPS.longitudeDegrees;
+	bsm.speed = GPS.speed * CNV_KNMPS > 1 ? GPS.speed * CNV_KNMPS : 0;
+	bsm.heading = GPS.angle;
 }
 
 #if(RELEASE)
@@ -296,16 +267,17 @@ void printGpsData(){
     Serial.print(" quality: "); Serial.println((int)GPS.fixquality); 
     */
 	if (GPS.fix) {
+#if(RELEASE)
       Serial.print("Location: ");
       Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
       Serial.print(", "); 
       Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
-#if(RELEASE)
+#endif      
 	  Serial.print("Location (in degrees): ");
       Serial.print(GPS.latitudeDegrees, 4);
       Serial.print(", "); 
       Serial.println(GPS.longitudeDegrees, 4);
-#endif      
+
       Serial.print("Speed (knots): "); Serial.println(GPS.speed);
       Serial.print("Angle: "); Serial.println(GPS.angle);
       //Serial.print("Altitude: "); Serial.println(GPS.altitude);
@@ -341,7 +313,7 @@ void sprintgps(char* msg, geodot g) {
 	double lon = g.longitude;
 
 	Serial.print(msg); Serial.print(" : "); 
-	Serial.print(lat * 100, 6);  Serial.print(" , "); Serial.println(lon * 100, 6);
+	Serial.print(lat, 6);  Serial.print(" , "); Serial.println(lon, 6);
 
 	/*
 	Serial.print((int)lat/1, 4); Serial.print("  "); Serial.print((lat - floor(lat)) * 100, 4);

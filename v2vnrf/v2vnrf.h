@@ -5,7 +5,7 @@
 #define RADIUS  6371000
 #define HLW 1.5														// Half line width 1.5m default
 
-#define TOF 8														// Time of scope in sec
+#define TOF 12														// Time of scope in sec
 #define TTW 8														// Time to warn in sec
 #define TTS 4														// Time to stop in sec
 
@@ -62,10 +62,8 @@ typedef struct {
 
 typedef struct {
 	int speed;
-	double latitude;
-	char lat;
-	double longitude;
-	char lon;
+	double latitudeDegrees;
+	double longitudeDegrees;
 	double angle;
 	int fix;
 	int satellites;
