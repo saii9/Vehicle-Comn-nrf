@@ -49,8 +49,6 @@ void setupRadio() {
 	radio.openWritingPipe(addresses);       // Open a writing and reading pipe on each radio, with opposite addresses
 	radio.openReadingPipe(1, addresses);     // Start the radio listening for data
 	radio.startListening();
-
-
 }
 
 
@@ -70,9 +68,12 @@ void setupGPS() {
 	// test setup for off road testing
 	if (vehId == 1) {
 
-		GPS.speed = 16;
-		GPS.latitudeDegrees = 42.468159;
-		GPS.longitudeDegrees = -83.396793;
+		GPS.speed = 6.7056;
+		//42.467448, -83.396528
+		GPS.latitudeDegrees = 42.467448;
+		GPS.longitudeDegrees = -83.396528;
+		//GPS.latitudeDegrees = 42.468159;
+		//GPS.longitudeDegrees = -83.396793;
 		GPS.angle = 270;
 		GPS.fix = true;
 		GPS.satellites = 10;
@@ -104,12 +105,19 @@ void setup() {
 
 void notify(int severity, char* msg) {
 	Serial.println(msg);
+	Serial.println("last notice : "); Serial.println(notice.severity);
+	Serial.println("new  notice : "); Serial.println(severity);
+
+
 	if (millis() - notice.lastUpdate >= NOTICETO) {
+		Serial.println("notice timed out");
+		digitalWrite(notice.severity, LOW);
 		notice.severity = severity;
 		notice.lastUpdate = millis();
 		digitalWrite(severity, HIGH);
-	}
-	else if (notice.severity < severity) {
+	}else if (severity < notice.severity) {
+		Serial.println("High severity notice received");
+		digitalWrite(notice.severity, LOW);
 		notice.severity = severity;
 		notice.lastUpdate = millis();
 		digitalWrite(severity, HIGH);
@@ -202,25 +210,22 @@ void broadcast(){
 
 
 void checkRadio(){
+
 	unsigned long got_time;
     if (millis() - lastBroadcast > BROADCAST_INTERVAL){
       broadcast();
       lastBroadcast = millis();
     }
-    
     if( radio.available()){
       bsmf bsmr;
-                                                                    // Variable for the received timestamp
       while (radio.available()) {                                   // While there is data ready
         radio.read( &bsmr, sizeof(bsmf) );				            // Get the payload
       }
-
 	  digitalWrite(RECVLED, HIGH);
 	  lastRecieved = millis();
 	  Serial.println("receiving BSM");
 	  //printBSM(bsmr);
 	  processBSMR(bsm, bsmr);
-
 	}
 	/*
 	else {
@@ -232,6 +237,7 @@ void checkRadio(){
 
 void loop() {
 #if(RELEASE)
+	Serial.println("looping");
 	checkGps();
 #else
 	if (!bsminit) {
@@ -247,6 +253,7 @@ void loop() {
 	}
 
 	if (GPS.fix) {
+		Serial.println("checkraio");
 		checkRadio();
 	}
  }

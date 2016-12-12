@@ -6,8 +6,8 @@
 #define HLW 1.5														// Half line width 1.5m default
 
 #define TOF 12														// Time of scope in sec
-#define TTW 8														// Time to warn in sec
-#define TTS 4														// Time to stop in sec
+#define TTW 10														// Time to warn in sec
+#define TTS 6														// Time to stop in sec
 
 #define NUM_SAFE_POLY_SIDES 1
 #define CNV_KNMPS 0.514444445										// conversion from knots to meters per sec
