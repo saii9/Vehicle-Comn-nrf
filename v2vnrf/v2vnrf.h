@@ -15,7 +15,6 @@
 #define CNV_DEGTR 3.14159265359/180									// conversion from radians to degrees
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))	
-#define NOTICETO 1000												// notice time out in millis
 #define BROADCAST_INTERVAL 200	 									//broadcast interval in millis
 
 

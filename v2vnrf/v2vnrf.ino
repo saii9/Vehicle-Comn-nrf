@@ -6,7 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-int vehId = 1;
+int vehId = 3;
 #define GPSECHO false
 #define RELEASE true
 
@@ -66,7 +66,7 @@ void setupGPS() {
 
 #else
 	// test setup for off road testing
-	if (vehId == 1) {
+	if (vehId == 3) {
 
 		GPS.speed = 6.7056;
 		//42.467448, -83.396528
@@ -78,12 +78,11 @@ void setupGPS() {
 		GPS.fix = true;
 		GPS.satellites = 10;
 	
-	}else if (vehId == 2) {
-	
+	}else if (vehId == 4) {
 		GPS.speed = 8;
-		GPS.latitudeDegrees = 42.467890;
-		GPS.longitudeDegrees = -83.397131;
-		GPS.angle = 0;
+		GPS.latitudeDegrees = 42.468179;
+		GPS.longitudeDegrees =  -83.391574;
+		GPS.angle = 90;
 		GPS.fix = true;
 		GPS.satellites = 10;
 	

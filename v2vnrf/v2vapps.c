@@ -79,11 +79,11 @@ int v2pAppICW(bsmf bsm, bsmf bsmr) {
 	sprintdouble("this veh", bsm.heading);
 	cautionPoly vpoly = getTimePolygon(bsm.cpos, bsm.speed, bsm.heading);
 
-	//sprintdouble("othr veh", bsmr.heading);
+	sprintdouble("othr veh", bsmr.heading);
 	cautionPoly rpoly = getTimePolygon(bsmr.cpos, bsmr.speed, bsmr.heading);
 
 	sprintdouble(" this len   : ", calcDistance(vpoly.ver[0], vpoly.ver[1]));
-	//sprintdouble(" recv len   : ", calcDistance(rpoly.ver[0], rpoly.ver[1]));
+	sprintdouble(" recv len   : ", calcDistance(rpoly.ver[0], rpoly.ver[1]));
 
 #if(NUM_SAFE_POLY_SIDES == 4)
 	// check intersection of vploy with rpoly
